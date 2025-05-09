@@ -70,26 +70,29 @@ const authenticateToken = (req, res, next) => {
 };
 
 const GetRetailerProductsController = async (req, res) => {
-    const { retailerId } = req.params;
-  
-    try {
-      const getProductsQuery = `SELECT productId, productName, description, category, subcategory, brand, quantity, price, addedAt FROM product WHERE retailerId = ?`;
-      db.query(getProductsQuery, [retailerId], (err, results) => {
-        if (err) {
-          console.error("Database Error:", err);
-          return res.status(500).json({ message: 'Database error' });
-        }
-        if (results.length === 0) {
-          return res.status(404).json({ message: 'No products found for this retailer.' });
-        }
-        return res.status(200).json({ products: results });
-      });
-    } catch (error) {
-      console.error("Server Error:", error);
-      return res.status(500).json({ message: 'Internal server error' });
-    }
-  };
+  const { retailerId } = req.params;
+  // console.log('Received request for retailerId:', retailerId);
 
+  try {
+    const getProductsQuery = `SELECT productId, productName, description, category, subcategory, brand, quantity, price, addedAt FROM product WHERE retailerId = ?`;
+    db.query(getProductsQuery, [retailerId], (err, results) => {
+      if (err) {
+        console.error("Database Error:", err);
+        return res.status(500).json({ success: false, message: 'Database error' });
+      }
+      // console.log('Query results:', results);
+      // Return 200 with empty array
+      return res.status(200).json({ 
+        success: true,
+        products: results,
+        message: results.length === 0 ? 'No products found' : 'Products retrieved successfully'
+      });
+    });
+  } catch (error) {
+    console.error("Server Error:", error);
+    return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
 
 
 module.exports = { AddProductController, GetRetailerProductsController, authenticateToken };

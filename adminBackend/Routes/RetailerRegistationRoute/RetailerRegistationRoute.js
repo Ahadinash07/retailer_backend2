@@ -1,5 +1,6 @@
 const express = require('express');
-const { RetailerRegistationController, RetailerLoginController, RetailerLogoutController, RetailerUpdateController, RetailerUpdatePasswordController, RetailerDeleteController, getRetailerDetails, RetailerUpdateStatusController } = require('../../Controllers/RetailerRegistationController/RetailerRegistationController');
+const { RetailerRegistationController, RetailerLoginController, RetailerLogoutController, RetailerUpdateController, RetailerUpdatePasswordController, RetailerDeleteController, getRetailerDetails, RetailerUpdateStatusController, getRetailerOrders, updateOrderStatus, updateOrderTracking } = require('../../Controllers/RetailerRegistationController/RetailerRegistationController');
+const { authenticateRetailer } = require('../../middleware/auth');
 const RetailerregisterRoute = express.Router();
 
 RetailerregisterRoute.post('/retailer_registration', RetailerRegistationController);
@@ -17,5 +18,10 @@ RetailerregisterRoute.put('/retailer_update_password/:retailerId', RetailerUpdat
 RetailerregisterRoute.delete('/retailer_delete/:retailerId', RetailerDeleteController);
 
 RetailerregisterRoute.put('/retailer_update_status/:retailerId', RetailerUpdateStatusController);
+
+
+RetailerregisterRoute.get('/retailer/orders', authenticateRetailer, getRetailerOrders);
+RetailerregisterRoute.patch('/retailer/orders/:orderId/status', authenticateRetailer, updateOrderStatus);
+RetailerregisterRoute.post('/retailer/orders/:orderId/tracking', authenticateRetailer, updateOrderTracking);
 
 module.exports = RetailerregisterRoute;

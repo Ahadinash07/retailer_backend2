@@ -2,7 +2,26 @@ const { uploadToS3 } = require("../../middleware/awsmiddleware");
 const db = require("../../Models/db");
 const env = require("dotenv");
 const { v4: uuidv4 } = require('uuid');
+const jwt = require('jsonwebtoken');
 env.config();
+
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ message: 'Access token is missing' });
+  }
+
+  jwt.verify(token, 'your-secret-key', (err, user) => {
+    if (err) {
+      return res.status(403).json({ message: 'Invalid or expired token' });
+    }
+    req.user = user;
+    next();
+  });
+};
+
 
 const AddProductController = async (req, res) => {
   const { retailerId, productName, description, category, subcategory, brand, quantity, price } = req.body;
@@ -48,26 +67,6 @@ const AddProductController = async (req, res) => {
   }
 };
 
-
-
-const jwt = require('jsonwebtoken');
-
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ message: 'Access token is missing' });
-  }
-
-  jwt.verify(token, 'your-secret-key', (err, user) => {
-    if (err) {
-      return res.status(403).json({ message: 'Invalid or expired token' });
-    }
-    req.user = user;
-    next();
-  });
-};
 
 const GetRetailerProductsController = async (req, res) => {
   const { retailerId } = req.params;
